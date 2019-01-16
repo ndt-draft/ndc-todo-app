@@ -20,8 +20,8 @@ bcrypt.compare(password, hashedPassword, (err, res) => {
 //   id: 10
 // }
 
-// var token = jwt.sign(data, '123abc')
-// var decoded = jwt.verify(token, '123abc')
+// var token = jwt.sign(data, process.env.JWT_SECRET)
+// var decoded = jwt.verify(token, process.env.JWT_SECRET)
 // console.log('decoded', decoded)
 
 // var message = "I am user number 3"

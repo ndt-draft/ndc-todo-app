@@ -358,7 +358,7 @@ describe('POST /users/login', () => {
       .post('/users/login')
       .send({
         email: 'non-exist@example.com',
-        password: '123abc'
+        password: 'password!'
       })
       .expect(400)
       .end(done)
@@ -388,7 +388,7 @@ describe('DELETE /users/me/token', () => {
   it('should return 401 if token is wrong', (done) => {
     request(app)
       .delete('/users/me/token')
-      .set('x-auth', '123abc')
+      .set('x-auth', "wrongtoken")
       .expect(401)
       .end(done)
   })
