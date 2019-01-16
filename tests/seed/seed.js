@@ -18,18 +18,24 @@ const users = [
   {
     _id: userTwoId,
     email: 'jane@example.com',
-    password: 'userTwoPass'
+    password: 'userTwoPass',
+    tokens: [{
+      access: 'auth',
+      token: jwt.sign({_id: userTwoId, access: 'auth'}, '123abc').toString()
+    }]
   }
 ]
 
 const todos = [
   {
     _id: new ObjectID(),
-    text: 'Quit Niteco'
+    text: 'Quit Niteco',
+    _creator: userOneId
   },
   {
     _id: new ObjectID(),
     text: 'Join startup team',
+    _creator: userTwoId
   }
 ]
 
