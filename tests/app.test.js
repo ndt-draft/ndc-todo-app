@@ -244,3 +244,91 @@ describe('POST /users', () => {
       .end(done)
   })
 })
+
+describe('POST /users/login', () => {
+  it('should login successfully', (done) => {
+    const {email, password} = users[0]
+    request(app)
+      .post('/users/login')
+      .send({email, password})
+      .expect(200)
+      .expect(res => {
+        expect(res.headers['x-auth']).toBeTruthy()
+        expect(res.body._id).toBe(users[0]._id.toHexString())
+        expect(res.body.email).toBe(users[0].email)
+      })
+      .end((err, res) => {
+        if (err) {
+          done(err)
+        }
+
+        User.findOne({email}).then(user => {
+          expect(user.tokens[1]).toMatchObject({
+            access: 'auth',
+            token: res.headers['x-auth']
+          })
+          done()
+        }).catch(e => done(e))
+      })
+  })
+
+  it('should login failed with wrong password', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[0].email,
+        password: 'wrongpassword'
+      })
+      .expect(400)
+      .end(err => {
+        if (err) {
+          done(err)
+        }
+
+        User.findById(users[0]._id).then(user => {
+          expect(user.tokens.length).toBe(1)
+          done()
+        }).catch(e => done(e))
+      })
+  })
+
+  it('should login failed with wrong email', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: 'non-exist@example.com',
+        password: '123abc'
+      })
+      .expect(400)
+      .end(done)
+  })
+})
+
+describe('DELETE /users/me/token', () => {
+  it('should delete token successfully', (done) => {
+    const {email} = users[0]
+
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .end(err => {
+        if (err) {
+          done(err)
+        }
+
+        User.findOne({email}).then(user => {
+          expect(user.tokens.length).toBe(0)
+          done()
+        }).catch(e => done(e))
+      })
+  })
+
+  it('should return 401 if token is wrong', (done) => {
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', '123abc')
+      .expect(401)
+      .end(done)
+  })
+})
